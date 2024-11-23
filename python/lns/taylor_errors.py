@@ -1,11 +1,10 @@
+# Run with python3 -m lns.taylor_errors from the parent directory
+
 # %%
 
 import numpy as np
 from matplotlib import pyplot as plt
-try:
-    from definitions import *
-except:
-    from lns.definitions import *
+from lns.definitions import *
 
 # %%
 
