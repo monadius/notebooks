@@ -48,7 +48,7 @@ def taylor_add_err_rnd(rnd, i, r):
 def taylor_add_err_bound(delta):
     return taylor_add_err(0, delta)
 
-def taylor_add_rnd_err(prec, delta):
+def taylor_add_rnd_err_bound(prec, delta):
     eps = 0.5 * prec
     return taylor_add_err_bound(delta) + (2 + delta) * eps
 
@@ -78,7 +78,7 @@ def taylor_sub_err_rnd(rnd, i, r):
 def taylor_sub_err_bound(delta):
     return taylor_sub_err(-1, delta)
 
-def taylor_sub_rnd_err(prec, delta):
+def taylor_sub_rnd_err_bound(prec, delta):
     eps = 0.5 * prec
     return taylor_sub_err_bound(delta) + (2 + delta) * eps
 
