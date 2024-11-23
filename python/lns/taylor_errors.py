@@ -1,12 +1,15 @@
 # %%
 
 import numpy as np
-from matplotlib import pyplot as plt 
-from lns.definitions import *
+from matplotlib import pyplot as plt
+try:
+    from definitions import *
+except:
+    from lns.definitions import *
 
 # %%
 
-def get_add_error(prec, delta):
+def get_add_error(prec: float, delta: float) -> tuple[float, float]:
     xs = np.arange(-3, prec, prec)
     rnd, eps = fix_rnd(prec), 0.5 * prec
     # Exact values computed with float64
@@ -27,7 +30,7 @@ def get_add_error(prec, delta):
     err_bound_rnd1 = err_bound1 + rnd_bound1
     return err_rnd / err_bound_rnd, err_rnd / err_bound_rnd1
 
-def get_sub_error(prec, delta):
+def get_sub_error(prec: float, delta: float) -> tuple[float, float]:
     xs = np.arange(-4, -1 + prec, prec)
     rnd, eps = fix_rnd(prec), 0.5 * prec
     # Exact values computed with float64
@@ -52,7 +55,7 @@ def get_sub_error(prec, delta):
 # %%
 
 # Test cases (p, d) with prec = 2**p, delta = 2**d
-test_cases = [
+test_cases: list[tuple[int, int]] = [
     (-8, -3),
     (-8, -4),
     (-8, -5),
@@ -66,11 +69,13 @@ test_cases = [
 
 xs = [str(case) for case in test_cases]
 res_add = [get_add_error(2 ** p, 2 ** d) for p, d in test_cases]
-plt.bar(xs, [x for x, y in res_add])
+plot = plt.bar(xs, [x for x, y in res_add])
+plt.show()
 
 # %%
 res_sub = [get_sub_error(2 ** p, 2 ** d) for p, d in test_cases]
-plt.bar(xs, [x for x, y in res_sub])
+plot = plt.bar(xs, [x for x, y in res_sub])
+plt.show()
 
 # %% Plot improved and standard errors together
 plt.bar(xs, [y for x, y in res_add])
