@@ -8,7 +8,7 @@ from lns.definitions import *
 
 # %%
 
-def get_add_error(prec: float, delta: float) -> tuple[float, float]:
+def get_add_error(prec: float, delta: float) -> tuple[float, float, float]:
     xs = np.arange(-3, prec, prec)
     rnd, eps = fix_rnd(prec), 0.5 * prec
     # Exact values computed with float64
@@ -27,9 +27,9 @@ def get_add_error(prec: float, delta: float) -> tuple[float, float]:
     d = delta - prec
     err_bound1 = phi_add(-d) - phi_add(0) + d * dphi_add(0)
     err_bound_rnd1 = err_bound1 + rnd_bound1
-    return err_rnd / err_bound_rnd, err_rnd / err_bound_rnd1
+    return err_rnd, err_bound_rnd, err_bound_rnd1
 
-def get_sub_error(prec: float, delta: float) -> tuple[float, float]:
+def get_sub_error(prec: float, delta: float) -> tuple[float, float, float]:
     xs = np.arange(-4, -1 + prec, prec)
     rnd, eps = fix_rnd(prec), 0.5 * prec
     # Exact values computed with float64
@@ -48,7 +48,7 @@ def get_sub_error(prec: float, delta: float) -> tuple[float, float]:
     d = delta - prec
     err_bound1 = -phi_sub(-1 - d) + phi_sub(-1) - d * dphi_sub(-1)
     err_bound_rnd1 = err_bound1 + rnd_bound1
-    return err_rnd / err_bound_rnd, err_rnd / err_bound_rnd1
+    return err_rnd, err_bound_rnd, err_bound_rnd1
 
 
 # %%
@@ -68,20 +68,42 @@ test_cases: list[tuple[int, int]] = [
 
 xs = [str(case) for case in test_cases]
 res_add = [get_add_error(2 ** p, 2 ** d) for p, d in test_cases]
-plot = plt.bar(xs, [x for x, y in res_add])
+plot = plt.bar(xs, [err / bound1 for err, bound1, bound2 in res_add])
 plt.show()
 
 # %%
 res_sub = [get_sub_error(2 ** p, 2 ** d) for p, d in test_cases]
-plot = plt.bar(xs, [x for x, y in res_sub])
+plot = plt.bar(xs, [err / bound1 for err, bound1, bound2 in res_sub])
 plt.show()
 
 # %% Plot improved and standard errors together
-plt.bar(xs, [y for x, y in res_add])
-plt.bar(xs, [x for x, y in res_add])
+plt.bar(xs, [err / bound2 for err, bound1, bound2 in res_add])
+plt.bar(xs, [err / bound1 for err, bound1, bound2 in res_add])
 
 # %%
-plt.bar(xs, [y for x, y  in res_sub])
-plt.bar(xs, [x for x, y  in res_sub])
+plt.bar(xs, [err / bound2 for err, bound1, bound2 in res_sub])
+plt.bar(xs, [err / bound1 for err, bound1, bound2 in res_sub])
+
+# %%
+
+def plot_error(prec: int):
+    deltas = [*range(prec // 2 - 1, -2)]
+    errs = [get_add_error(2 ** prec, 2 ** d) for d in deltas]
+    fig = plt.figure(figsize = (16, 9))
+    plot = fig.add_subplot()
+    plot.plot(deltas, np.log2([err[0] for err in errs]), color='red', linewidth = 3)
+    plot.plot(deltas, np.log2([err[1] for err in errs]), color='green', linewidth = 3)
+    plot.set_xlabel('log2 Δ')
+    plot.set_ylabel('log2 err')
+    plot.legend(['actual', 'bound'])
+    plot.grid(which='both', axis='both', linestyle='-.')
+    plt.suptitle(f'Fixed point precision: 2 ** {prec}', fontsize=16)
+    fig.show()
+    plt.savefig(f'taylor_add_{abs(prec)}.png')
+# %%
+plot_error(-10)
+plot_error(-15)
+# plot_error(-20)
+# plot_error(-24)
 
 # %%

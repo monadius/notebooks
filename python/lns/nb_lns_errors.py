@@ -1,7 +1,7 @@
 # %%
 from sympy import *
 
-x, i, r, Δ, ΔP, ε = symbols('x i r Δ ΔP ε')
+x, i, j, r, Δ, ΔP, ε, t = symbols('x i j r Δ ΔP ε t')
 
 # %%
 Φp = Lambda(x, log(1 + 2 ** x, 2))
@@ -73,4 +73,23 @@ expr.simplify()
 (2 ** t).series(t)
 # %%
 plot(2 ** r * log(2) / (2 ** r - 2)**2, (r, 0, 0.5))
+# %%
+Φp(i - r).series(r, 0, 3).subs(exp(i * log(2)), t)
+# %%
+g = (t * log(2) / (2 * t + 2) - 2 * t**2 * log(2) / (4 * t**2 + 8 * t + 4)).simplify()
+diff(g, t).simplify()
+g
+# %%
+plot(g, (t, 0, 1))
+
+# %%
+Φm(i - r).series(r, 0, 3).subs(exp(i * log(2)), t)
+
+# %%
+g = t * log(2) / (2 * t - 2) - 2 * t**2 * log(2) / (4 * t**2 - 8 * t + 4)
+g.simplify()
+# %%
+plot(abs(g), (t, 0, 2**-0.5))
+# %%
+g.simplify().subs(t, 2**-r)
 # %%
