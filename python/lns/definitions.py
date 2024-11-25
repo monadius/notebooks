@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Callable, TypeAlias
 
-Value: TypeAlias = np.ndarray
+Value: TypeAlias = np.ndarray | float
 Rounding: TypeAlias = Callable[[Value], Value]
 
 def max_err(exact: Value, approx: Value) -> float:
@@ -85,6 +85,43 @@ def taylor_sub_err_bound(delta: float) -> float:
 def taylor_sub_rnd_err_bound(prec: float, delta: float) -> float:
     eps = 0.5 * prec
     return taylor_sub_err_bound(delta) + (2 + delta) * eps
+
+# Error-correction techniques
+
+# Qp
+def q_add(delta: float, i: Value, r: Value) -> Value:
+    return taylor_add_err(i, r) / taylor_add_err(i, delta)
+
+# Qp_lo
+def q_add_lo(delta: float, r: Value) -> Value:
+    return q_add(delta, 0, r)
+
+# Qp_hi
+def q_add_hi(delta: float, r: Value) -> Value:
+    return (2 ** -r + r * np.log(2) - 1) / (2 ** -delta + delta * np.log(2) - 1)
+
+# Rp_opt
+def r_add_opt(delta: float) -> float:
+    x = 2 ** delta
+    return np.log2(x * (2 * np.log(x + 1) - np.log(x) - 2 * np.log(2)) / (-2 * x * (np.log(x + 1) - np.log(x) - np.log(2)) - x + 1))
+
+# QRp
+def q_add_range_bound(delta: float) -> float:
+    r = r_add_opt(delta)
+    return q_add_hi(delta, r) - q_add_lo(delta, r)
+
+# QIp
+def q_add_approx_bound(delta: float, delta_p: float) -> float:
+    return 1 - q_add_lo(delta, delta - delta_p)
+
+# ΦECp_fix
+def ec_add_rnd(rnd: Rounding, delta: float, delta_p: float, c: float, xs: Value) -> Value:
+    if np.any(xs > 0):
+        raise ValueError('ec_add_rnd: xs > 0')
+    ns = np.ceil(xs / delta) * delta
+    rs = ns - xs
+    ec = rnd(rnd(taylor_add_err(ns, delta)) * rnd(q_add(delta, c, np.floor(rs / delta_p) * delta_p)))
+    return rnd(phi_add(ns)) - rnd(rs * rnd(dphi_add(ns))) + ec
 
 # Co-transformations
 
