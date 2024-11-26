@@ -8,9 +8,29 @@ from lns.definitions import *
 
 # %%
 
-def get_add_error(prec: float, delta: float) -> tuple[float, float, float]:
+def get_add_error(prec: float, delta: float, nearest: bool = True) -> tuple[float, float, float]:
+    """Computes actual and theoretical error bounds for Taylor approximation of phi_add.
+    
+    Evaluates the Taylor approximation of phi_add with fixed-point rounding over a range
+    of inputs and compares against exact values to determine actual error. Also computes
+    theoretical error bounds.
+
+    Args:
+        prec: The precision (step size) for fixed-point arithmetic
+        delta: The step size for the Taylor approximation
+
+    Returns:
+        A tuple containing:
+        - The actual maximum error observed
+        - A theoretical error bound from taylor_add_rnd_err_bound
+        - A tighter error bound computed using more detailed analysis
+    """
     xs = np.arange(-3, prec, prec)
-    rnd, eps = fix_rnd(prec), 0.5 * prec
+    if nearest:
+        rnd, eps = fix_rnd(prec), 0.5 * prec
+    else:
+        rnd, eps = fix_rnd_floor(prec), prec
+    # rnd, eps = fix_rnd_floor(prec), prec
     # Exact values computed with float64
     exact = phi_add(xs)
     # Approximate values
@@ -18,7 +38,7 @@ def get_add_error(prec: float, delta: float) -> tuple[float, float, float]:
     # The actual error
     err_rnd = max_err(exact, approx_rnd)
     # The error bound
-    err_bound_rnd = taylor_add_rnd_err_bound(prec, delta)
+    err_bound_rnd = taylor_add_rnd_err_bound(eps, delta)
     # Attempt to compute a more accurate bound
     ns = np.ceil(xs / delta) * delta
     a1 = max_err(phi_add(ns), rnd(phi_add(ns)))
@@ -39,7 +59,7 @@ def get_sub_error(prec: float, delta: float) -> tuple[float, float, float]:
     # The actual error
     err_rnd = max_err(exact, approx_rnd)
     # The error bound
-    err_bound_rnd = taylor_sub_rnd_err_bound(prec, delta)
+    err_bound_rnd = taylor_sub_rnd_err_bound(eps, delta)
     # Attempt to compute a more accurate bound
     ns = np.ceil(xs / delta) * delta
     a1 = max_err(phi_sub(ns), rnd(phi_sub(ns)))
@@ -66,14 +86,24 @@ test_cases: list[tuple[int, int]] = [
     # (-23, -8),
 ]
 
+
+
 xs = [str(case) for case in test_cases]
 res_add = [get_add_error(2 ** p, 2 ** d) for p, d in test_cases]
 plot = plt.bar(xs, [err / bound1 for err, bound1, bound2 in res_add])
+plt.xlabel('(log2 prec, log2 Δ)')
+plt.ylabel('err / err bound')
+plt.title('Taylor Addition')
+plt.savefig('taylor_add_err.png')
 plt.show()
 
 # %%
 res_sub = [get_sub_error(2 ** p, 2 ** d) for p, d in test_cases]
 plot = plt.bar(xs, [err / bound1 for err, bound1, bound2 in res_sub])
+plt.xlabel('(log2 prec, log2 Δ)')
+plt.ylabel('err / err bound')
+plt.title('Taylor Subtraction')
+plt.savefig('taylor_sub_err.png')
 plt.show()
 
 # %% Plot improved and standard errors together
@@ -86,24 +116,31 @@ plt.bar(xs, [err / bound1 for err, bound1, bound2 in res_sub])
 
 # %%
 
-def plot_error(prec: int):
+def plot_error(prec: int, nearest: bool):
     deltas = [*range(prec // 2 - 1, -2)]
-    errs = [get_add_error(2 ** prec, 2 ** d) for d in deltas]
+    errs = [get_add_error(2 ** prec, 2 ** d, nearest=nearest) for d in deltas]
     fig = plt.figure(figsize = (16, 9))
     plot = fig.add_subplot()
-    plot.plot(deltas, np.log2([err[0] for err in errs]), color='red', linewidth = 3)
-    plot.plot(deltas, np.log2([err[1] for err in errs]), color='green', linewidth = 3)
+    plot.plot(deltas, np.log2([err[0] for err in errs]), color='red', linewidth=3)
+    plot.plot(deltas, np.log2([err[1] for err in errs]), color='green', linewidth=3)
     plot.set_xlabel('log2 Δ')
     plot.set_ylabel('log2 err')
     plot.legend(['actual', 'bound'])
     plot.grid(which='both', axis='both', linestyle='-.')
-    plt.suptitle(f'Fixed point precision: 2 ** {prec}', fontsize=16)
+    plt.suptitle(f'Fixed point precision: 2 ** {prec}{" (rounding to neg infinity)" if not nearest else " (rounding to nearest)"}', fontsize=16)
     fig.show()
-    plt.savefig(f'taylor_add_{abs(prec)}.png')
+    plt.savefig(f'taylor_add_{abs(prec)}_{"nearest" if nearest else "directed"}.png')
 # %%
-plot_error(-10)
-plot_error(-15)
+plot_error(-10, False)
+plot_error(-15, False)
+plot_error(-23, False)
 # plot_error(-20)
 # plot_error(-24)
+
+# %%
+plot_error(-10, True)
+plot_error(-15, True)
+plot_error(-23, True)
+
 
 # %%

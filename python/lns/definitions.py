@@ -7,8 +7,11 @@ Rounding: TypeAlias = Callable[[Value], Value]
 def max_err(exact: Value, approx: Value) -> float:
     return np.max(np.abs(exact - approx))
 
-def fix_rnd(eps: float) -> Rounding: 
-    return lambda xs: np.round(xs * (1 / eps)) * eps
+def fix_rnd(prec: float) -> Rounding: 
+    return lambda xs: np.round(xs * (1 / prec)) * prec
+
+def fix_rnd_floor(prec: float) -> Rounding:
+    return lambda xs: np.floor(xs * (1 / prec)) * prec
 
 # Φp and Φm and their derivatives
 
@@ -52,8 +55,8 @@ def taylor_add_err_rnd(rnd: Rounding, i: Value, r: Value) -> Value:
 def taylor_add_err_bound(delta: float) -> float:
     return taylor_add_err(0, delta)
 
-def taylor_add_rnd_err_bound(prec: float, delta: float) -> float:
-    eps = 0.5 * prec
+# eps = 0.5 * prec for rounding-to-nearest
+def taylor_add_rnd_err_bound(eps: float, delta: float) -> float:
     return taylor_add_err_bound(delta) + (2 + delta) * eps
 
 def taylor_sub(delta: float, xs: Value) -> Value:
@@ -82,8 +85,8 @@ def taylor_sub_err_rnd(rnd: Rounding, i: Value, r: Value) -> Value:
 def taylor_sub_err_bound(delta: float) -> float:
     return taylor_sub_err(-1, delta)
 
-def taylor_sub_rnd_err_bound(prec: float, delta: float) -> float:
-    eps = 0.5 * prec
+# eps = 0.5 * prec for rounding-to-nearest
+def taylor_sub_rnd_err_bound(eps: float, delta: float) -> float:
     return taylor_sub_err_bound(delta) + (2 + delta) * eps
 
 # Error-correction techniques

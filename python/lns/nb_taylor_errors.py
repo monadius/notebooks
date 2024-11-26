@@ -6,10 +6,15 @@ from lns.definitions import *
 
 # %%
 
-eps = 2 ** -8
+prec = 2 ** -8
 delta = 2 ** -3
-xs = np.arange(-2, eps, eps)
+xs = np.arange(-2, prec, prec)
 len(xs)
+
+# %%
+ys = phi_add(xs)
+print(max_err(ys, fix_rnd(prec)(ys)), 0.5 * prec)
+print(max_err(ys, fix_rnd_floor(prec)(ys)), prec)
 
 # %%
 
@@ -22,7 +27,7 @@ approx = phi_add(ns) - rs * dphi_add(ns)
 
 err = max_err(exact, approx)
 err_bound = phi_add(-delta) - phi_add(0) + delta * dphi_add(0)
-d = delta - eps
+d = delta - prec
 err_bound1 = phi_add(-d) - phi_add(0) + d * dphi_add(0)
 
 print(err, err_bound, err / err_bound * 100)
@@ -37,9 +42,25 @@ plt.plot(xs, [err_bound] * len(xs))
 
 # %%
 
-rnd = fix_rnd(eps)
+rnd = fix_rnd(prec)
 exact_rnd = rnd(exact)
-max_err(exact, exact_rnd), 0.5 * eps
+max_err(exact, exact_rnd), 0.5 * prec
+
+# %%
+
+rnd = fix_rnd_floor(prec)
+exact_rnd = rnd(exact)
+max_err(exact, exact_rnd), prec
+
+# %%
+rnd = fix_rnd_floor(prec)
+print(max_err(taylor_add_rnd(rnd, delta, xs), exact))
+ns = np.ceil(xs / delta) * delta
+rs = ns - xs
+rnd(phi_add(ns)) - rnd(rs * rnd(dphi_add(ns)))
+
+print(max_err(rnd(rs * rnd(dphi_add(ns))), rs * dphi_add(ns)), prec)
+print(max_err(rnd(phi_add(ns)) - rnd(rs * rnd(dphi_add(ns))), phi_add(ns) - rs * dphi_add(ns)), prec)
 
 # %%
 
