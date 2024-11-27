@@ -32,7 +32,6 @@ def get_add_error(prec: float, delta: float, nearest: bool = True) -> tuple[floa
     else:
         rnd, eps = fix_rnd_floor(prec), prec
         rnd_bound = (1 + delta) * eps
-    # rnd, eps = fix_rnd_floor(prec), prec
     # Exact values computed with float64
     exact = phi_add(xs)
     # Approximate values
@@ -165,6 +164,7 @@ def plot_error(prec: int, name, nearest: bool):
     plt.suptitle(f'{name.capitalize()}: fixed point precision = 2 ** {prec}, rounding to {"nearest" if nearest else "neg infinity"}', fontsize=16)
     fig.show()
     plt.savefig(f'taylor_{name}_{abs(prec)}_{"nearest" if nearest else "directed"}.png')
+
 # %%
 plot_error(-10, 'add', False)
 plot_error(-15, 'add', False)
@@ -189,5 +189,18 @@ plot_error(-15, 'sub', False)
 plot_error(-10, 'sub', True)
 plot_error(-15, 'sub', True)
 # plot_error(-23, 'add', True)
+
+# %%
+def get_add_average_error(prec: float, delta: float, nearest: bool = True) -> tuple[float, float]:
+    """Computes actual average error for Taylor approximation of phi_add."""
+    xs = np.arange(-3, prec, prec)
+    rnd = fix_rnd(prec) if nearest else fix_rnd_floor(prec)
+    exact = phi_add(xs)
+    # Approximate values
+    approx = taylor_add_rnd(rnd, delta, xs)
+    return avg_abs_err(exact, approx), avg_err(exact, approx)
+
+get_add_average_error(2 ** -10, 2 ** -4)
+
 
 # %%

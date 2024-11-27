@@ -7,6 +7,12 @@ Rounding: TypeAlias = Callable[[Value], Value]
 def max_err(exact: Value, approx: Value) -> float:
     return np.max(np.abs(exact - approx))
 
+def avg_abs_err(exact: Value, approx: Value) -> float:
+    return np.average(np.abs(exact - approx))
+
+def avg_err(exact: Value, approx: Value) -> float:
+    return np.abs(np.average(exact - approx))
+
 def fix_rnd(prec: float) -> Rounding: 
     return lambda xs: np.round(xs * (1 / prec)) * prec
 
