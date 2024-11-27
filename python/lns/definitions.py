@@ -55,10 +55,6 @@ def taylor_add_err_rnd(rnd: Rounding, i: Value, r: Value) -> Value:
 def taylor_add_err_bound(delta: float) -> float:
     return taylor_add_err(0, delta)
 
-# eps = 0.5 * prec for rounding-to-nearest
-def taylor_add_rnd_err_bound(eps: float, delta: float) -> float:
-    return taylor_add_err_bound(delta) + (2 + delta) * eps
-
 def taylor_sub(delta: float, xs: Value) -> Value:
     if np.any(xs > -1):
         raise ValueError('taylor_sub: xs > -1')
@@ -84,10 +80,6 @@ def taylor_sub_err_rnd(rnd: Rounding, i: Value, r: Value) -> Value:
 
 def taylor_sub_err_bound(delta: float) -> float:
     return taylor_sub_err(-1, delta)
-
-# eps = 0.5 * prec for rounding-to-nearest
-def taylor_sub_rnd_err_bound(eps: float, delta: float) -> float:
-    return taylor_sub_err_bound(delta) + (2 + delta) * eps
 
 # Error-correction techniques
 
