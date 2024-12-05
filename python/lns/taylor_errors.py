@@ -1,5 +1,3 @@
-# Run with python3 -m lns.taylor_errors from the parent directory
-
 # %%
 
 import numpy as np
@@ -106,6 +104,33 @@ def get_add_average_error(prec: float, delta: float, nearest: bool = True) -> tu
 
 # %%
 
+def plot_taylor_error_bar(
+    name: str,
+    test_cases: list[tuple[int, int]],
+    rounding_mode: RoundingMode, *,
+    title: str = '',
+    filename: str = '',
+    plot_improved: bool = False,
+) -> None:
+    """Plots actual error / error bound for Taylor approximation of phi_add and phi_sub."""
+    f = {'add': get_add_error, 'sub': get_sub_error}[name]
+    xs = [str(case) for case in test_cases]
+    res = [f(2 ** p, 2 ** d, rounding_mode) for p, d in test_cases]
+    if plot_improved:
+        plt.bar(xs, [err / bound2 for err, bound1, bound2 in res], color='orange')
+    plt.bar(xs, [err / bound1 for err, bound1, bound2 in res])
+    plt.xlabel('(log2 prec, log2 Δ)')
+    plt.ylabel(f'{name} err / {name} err bound')
+    plt.gca().set_axisbelow(True)
+    plt.grid(axis='y')
+    if title:
+        plt.title(title)
+    if filename:
+        plt.savefig(filename)
+    plt.show()
+
+# %%
+
 # Test cases (p, d) with prec = 2**p, delta = 2**d
 test_cases: list[tuple[int, int]] = [
     (-8, -3),
@@ -119,61 +144,52 @@ test_cases: list[tuple[int, int]] = [
     # (-23, -8),
 ]
 
-xs = [str(case) for case in test_cases]
-res_add = [get_add_error(2 ** p, 2 ** d, RoundingMode.NEAREST) for p, d in test_cases]
-plot = plt.bar(xs, [err / bound1 for err, bound1, bound2 in res_add])
-plt.xlabel('(log2 prec, log2 Δ)')
-plt.ylabel('err / err bound')
-plt.gca().set_axisbelow(True)
-plt.grid(axis='y')
-plt.title('Taylor Addition (rounding to nearest)')
-plt.savefig('taylor_add_err_nearest.png')
-plt.show()
+plot_taylor_error_bar(
+    'add',
+    test_cases, 
+    RoundingMode.NEAREST, 
+    plot_improved=True,
+    title='Taylor Addition (rounding to nearest)', 
+    filename='images/taylor_add_err_nearest.png'
+)
 
-res_add = [get_add_error(2 ** p, 2 ** d, RoundingMode.FLOOR) for p, d in test_cases]
-plot = plt.bar(xs, [err / bound1 for err, bound1, bound2 in res_add])
-plt.xlabel('(log2 prec, log2 Δ)')
-plt.ylabel('err / err bound')
-plt.gca().set_axisbelow(True)
-plt.grid(axis='y')
-plt.title('Taylor Addition (directed rounding)')
-plt.savefig('taylor_add_err_directed.png')
-plt.show()
-
-
-# %%
-res_sub = [get_sub_error(2 ** p, 2 ** d, RoundingMode.NEAREST) for p, d in test_cases]
-plot = plt.bar(xs, [err / bound1 for err, bound1, bound2 in res_sub])
-plt.xlabel('(log2 prec, log2 Δ)')
-plt.ylabel('err / err bound')
-plt.gca().set_axisbelow(True)
-plt.grid(axis='y')
-plt.title('Taylor Subtraction (rounding to nearest)')
-plt.savefig('taylor_sub_err_nearest.png')
-plt.show()
-
-res_sub = [get_sub_error(2 ** p, 2 ** d, RoundingMode.FLOOR) for p, d in test_cases]
-plot = plt.bar(xs, [err / bound1 for err, bound1, bound2 in res_sub])
-plt.xlabel('(log2 prec, log2 Δ)')
-plt.ylabel('err / err bound')
-plt.gca().set_axisbelow(True)
-plt.grid(axis='y')
-plt.title('Taylor Subtraction (directed rounding)')
-plt.savefig('taylor_sub_err_directed.png')
-plt.show()
-
-
-# %% Plot improved and standard errors together
-plt.bar(xs, [err / bound2 for err, bound1, bound2 in res_add])
-plt.bar(xs, [err / bound1 for err, bound1, bound2 in res_add])
-
-# %%
-plt.bar(xs, [err / bound2 for err, bound1, bound2 in res_sub])
-plt.bar(xs, [err / bound1 for err, bound1, bound2 in res_sub])
+plot_taylor_error_bar(
+    'add',
+    test_cases, 
+    RoundingMode.FLOOR, 
+    title='Taylor Addition (directed rounding)', 
+    filename='images/taylor_add_err_directed.png'
+)
 
 # %%
 
-def plot_error(prec: int, name: str, rounding_mode: RoundingMode):
+plot_taylor_error_bar(
+    'sub',
+    test_cases, 
+    RoundingMode.NEAREST, 
+    title='Taylor Subtraction (rounding to nearest)', 
+    filename='images/taylor_sub_err_nearest.png'
+)
+
+plot_taylor_error_bar(
+    'sub',
+    test_cases, 
+    RoundingMode.FLOOR, 
+    title='Taylor Subtraction (directed rounding)', 
+    filename='images/taylor_sub_err_directed.png'
+)
+
+# plot_taylor_error_bar(
+#     'add',
+#     test_cases, 
+#     RoundingMode.FAITHFUL, 
+#     'Taylor Addition (faithful rounding)', 
+#     'images/taylor_add_err_directed.png'
+# )
+
+# %%
+
+def plot_error(prec: int, name: str, rounding_mode: RoundingMode, savefig: bool = False):
     f = {'add': get_add_error, 'sub': get_sub_error, 'add average': get_add_average_error}[name]
     deltas = [*range(prec // 2 - 1, -2)]
     errs = [f(2 ** prec, 2 ** d, rounding_mode) for d in deltas]
@@ -187,8 +203,9 @@ def plot_error(prec: int, name: str, rounding_mode: RoundingMode):
     plot.legend(['avg of abs', 'avg'] if 'average' in name else ['actual', 'bound'])
     plot.grid(which='both', axis='both', linestyle='-.')
     plt.suptitle(f'{name.capitalize()}: fixed point precision = 2 ** {prec}, {rounding_mode}', fontsize=16)
+    if savefig:
+        fig.savefig(f'taylor_{name}_{abs(prec)}_{rounding_mode}.png')
     fig.show()
-    # plt.savefig(f'taylor_{name}_{abs(prec)}_{"nearest" if nearest else "directed"}.png')
 
 # %%
 plot_error(-10, 'add', RoundingMode.FLOOR)
@@ -228,5 +245,36 @@ plot_error(-15, 'add average', RoundingMode.NEAREST)
 # %%
 plot_error(-10, 'add average', RoundingMode.FLOOR)
 plot_error(-15, 'add average', RoundingMode.FLOOR)
+
+# %%
+rounding_mode = RoundingMode.FAITHFUL
+precs = [-10, -15, -23]
+deltas = [*range(-13, 0)]
+xy = []
+for prec in precs:
+    # ds = [d for d in deltas if d >= prec + 1]
+    ds = deltas
+    xy.append((ds, [get_add_error(2 ** prec, 2 ** d, rounding_mode) for d in ds]))
+
+# %%
+fig = plt.figure(figsize = (14, 10))
+linewidth = 3
+fontsize = 16
+for prec, (ds, errs), color in zip(precs, xy, ('blue', 'green', 'red')):
+    plt.plot(ds, np.log2([err[0] for err in errs]), color=color, linewidth=linewidth, label=fr'$\epsilon = 2^{{{prec}}}$')
+    plt.plot(ds, np.log2([err[1] for err in errs]), color=color, linewidth=linewidth, linestyle='--')
+plt.xlabel(r'$\log_2(\Delta)$', fontsize=fontsize + 2)
+plt.ylabel(r'$\log_2(\rm{error})$', fontsize=fontsize + 2)
+plt.xticks(range(-13, 0), fontsize=fontsize)
+plt.yticks(range(-23, -4, 2), fontsize=fontsize)
+plt.legend(loc='lower right', fontsize=fontsize + 5)
+plt.savefig('images/taylor_error1.png', bbox_inches='tight')
+
+# plot.legend(['avg of abs', 'avg'] if 'average' in name else ['actual', 'bound'])
+# plot.grid(which='both', axis='both', linestyle='-.')
+# plt.suptitle(f'{name.capitalize()}: fixed point precision = 2 ** {prec}, {rounding_mode}', fontsize=16)
+# if savefig:
+#     fig.savefig(f'taylor_{name}_{abs(prec)}_{rounding_mode}.png')
+# fig.show()
 
 # %%
