@@ -1,8 +1,17 @@
 import numpy as np
 from typing import Callable, TypeAlias
+from enum import Enum
 
 Value: TypeAlias = np.ndarray | float
 Rounding: TypeAlias = Callable[[Value], Value]
+
+# Enumeration with rounding modes
+
+class RoundingMode(Enum):
+    FLOOR = 'floor'
+    CEIL = 'ceil'
+    NEAREST = 'nearest'
+    FAITHFUL = 'faithful'
 
 def max_err(exact: Value, approx: Value) -> float:
     return np.max(np.abs(exact - approx))
@@ -13,11 +22,19 @@ def avg_abs_err(exact: Value, approx: Value) -> float:
 def avg_err(exact: Value, approx: Value) -> float:
     return np.abs(np.average(exact - approx))
 
-def fix_rnd(prec: float) -> Rounding: 
-    return lambda xs: np.round(xs * (1 / prec)) * prec
-
-def fix_rnd_floor(prec: float) -> Rounding:
-    return lambda xs: np.floor(xs * (1 / prec)) * prec
+def fix_rnd(prec: float, mode: RoundingMode = RoundingMode.NEAREST) -> Rounding: 
+    match mode:
+        case RoundingMode.FLOOR:
+            return lambda xs: np.floor(xs * (1 / prec)) * prec
+        case RoundingMode.CEIL:
+            return lambda xs: np.ceil(xs * (1 / prec)) * prec
+        case RoundingMode.NEAREST:
+            return lambda xs: np.round(xs * (1 / prec)) * prec
+        case RoundingMode.FAITHFUL:
+            # Use floor for the faithful rounding
+            return lambda xs: np.floor(xs * (1 / prec)) * prec
+        case _:
+            raise ValueError(f'fix_rnd: unknown rounding mode {mode}')
 
 # Φp and Φm and their derivatives
 

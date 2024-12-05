@@ -35,7 +35,7 @@ eps = 0.5 * prec
 da = 2**-6
 db = 2**-3
 delta = 2**-3
-rnd = fix_rnd(prec)
+rnd = fix_rnd(prec, RoundingMode.NEAREST)
 
 xs = np.arange(-db, -da, prec)
 exact = phi_sub(xs)
@@ -48,7 +48,7 @@ err, err_bound, err / err_bound * 100
 
 def cotrans2_error(prec: float, da: float, db: float, delta: float) -> float:
     eps = 0.5 * prec
-    rnd = fix_rnd(prec)
+    rnd = fix_rnd(prec, RoundingMode.NEAREST)
     xs = np.arange(-db, -da, prec)
     exact = phi_sub(xs)
     approx = cotrans2_rnd(rnd, delta, da, xs)
@@ -83,7 +83,7 @@ eps = 0.5 * prec
 da = 2**-6
 db = 2**-3
 delta = 2**-3
-rnd = fix_rnd(prec)
+rnd = fix_rnd(prec, RoundingMode.NEAREST)
 
 xs = np.arange(-1, -db, prec)
 exact = phi_sub(xs)
@@ -97,7 +97,7 @@ err, err_bound, err / err_bound * 100
 
 def cotrans3_error(prec: float, da: float, db: float, delta: float) -> float:
     eps = 0.5 * prec
-    rnd = fix_rnd(prec)
+    rnd = fix_rnd(prec, RoundingMode.NEAREST)
     xs = np.arange(-1, -db, prec)
     exact = phi_sub(xs)
     approx = cotrans3_rnd(rnd, delta, da, db, xs)
@@ -126,7 +126,7 @@ plt.show()
 
 def cotrans_error(prec: float, da: float, db: float, delta: float) -> float:
     eps = 0.5 * prec
-    rnd = fix_rnd(prec)
+    rnd = fix_rnd(prec, RoundingMode.NEAREST)
     xs2 = np.arange(-db, -da, prec)
     exact = phi_sub(xs2)
     approx = cotrans2_rnd(rnd, delta, da, xs2)

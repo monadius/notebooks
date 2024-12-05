@@ -13,7 +13,7 @@ len(xs)
 
 # %%
 ys = phi_add(xs)
-print(max_err(ys, fix_rnd(prec)(ys)), 0.5 * prec)
+print(max_err(ys, fix_rnd(prec, RoundingMode.NEAREST)(ys)), 0.5 * prec)
 print(max_err(ys, fix_rnd_floor(prec)(ys)), prec)
 
 # %%
@@ -42,7 +42,7 @@ plt.plot(xs, [err_bound] * len(xs))
 
 # %%
 
-rnd = fix_rnd(prec)
+rnd = fix_rnd(prec, RoundingMode.NEAREST)
 exact_rnd = rnd(exact)
 max_err(exact, exact_rnd), 0.5 * prec
 
@@ -86,7 +86,7 @@ def get_add_error(prec, delta):
     exact = phi_add(xs)
     ns = np.ceil(xs / delta) * delta
     rs = ns - xs
-    rnd = fix_rnd(prec)
+    rnd = fix_rnd(prec, RoundingMode.NEAREST)
     approx_rnd = rnd(phi_add(ns)) - rnd(rs * rnd(dphi_add(ns)))
     rnd_bound = (2 + delta) * (0.5 * prec)
     a1 = max_err(phi_add(ns), rnd(phi_add(ns)))
@@ -105,7 +105,7 @@ def get_sub_error(prec, delta):
     exact = phi_sub(xs)
     ns = np.ceil(xs / delta) * delta
     rs = ns - xs
-    rnd = fix_rnd(prec)
+    rnd = fix_rnd(prec, RoundingMode.NEAREST)
     approx_rnd = rnd(phi_sub(ns)) - rnd(rs * rnd(dphi_sub(ns)))
     rnd_bound = (2 + delta) * (0.5 * prec)
 
