@@ -157,3 +157,34 @@ errs = [cotrans_error(2 ** prec, 2 ** da, 2 ** db, 2 ** delta) for prec, da, db,
 plt.bar([*map(str, cotrans_cases)], errs)
 plt.show()
 # %%
+
+import numpy as np
+from matplotlib import pyplot as plt
+from definitions import *
+import cotrans_errors as ce
+
+ce.cotrans_error(2**-15, RoundingMode.NEAREST, da=2**-6, db=2**-5, delta=2**-3)
+# %%
+
+rounding_mode = RoundingMode.FAITHFUL
+prec = -23
+da = 2 ** -20
+db = 2 ** -10
+deltas = [*range(-13, 0)]
+xy = []
+xy.append((deltas, r'Co-transformation', [ce.cotrans_error(2 ** prec, rounding_mode, da=da, db=db, delta=2 ** d) for d in deltas]))
+
+# %%
+fig = plt.figure(figsize = (14, 10))
+linewidth = 3
+fontsize = 16
+for (ds, label, errs), color in zip(xy, ('red', 'green', 'blue')):
+    plt.plot(ds, np.log2([err[0] for err in errs]), color=color, linewidth=linewidth, label=label)
+    plt.plot(ds, np.log2([err[1] for err in errs]), color=color, linewidth=linewidth, linestyle='--')
+plt.xlabel(r'$\log_2(\Delta)$', fontsize=fontsize + 2)
+plt.ylabel(r'$\log_2(\rm{error})$', fontsize=fontsize + 2)
+plt.xticks(range(-13, 0), fontsize=fontsize)
+plt.yticks(range(-23, -4, 2), fontsize=fontsize)
+plt.legend(loc='lower right', fontsize=fontsize + 5)
+
+# %%
