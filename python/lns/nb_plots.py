@@ -156,8 +156,8 @@ plt.ylabel(r'$\log_2(\rm{error})$', fontsize=fontsize + 2)
 plt.xticks(deltas, fontsize=fontsize)
 plt.yticks(range(-23, -11), fontsize=fontsize)
 plt.legend(loc='upper left', fontsize=fontsize + 5)
-plt.savefig('images/taylor_add_sub_cotrans2.png', bbox_inches='tight')
-
+# plt.savefig('images/taylor_add_sub_cotrans2.png', bbox_inches='tight')
+plt.savefig('images/taylor_add_sub_cotrans2.pdf', bbox_inches='tight', format='pdf')
 
 
 # %%
