@@ -78,8 +78,8 @@ def taylor_add_err_rnd(rnd: Rounding, i: Value, r: Value) -> Value:
 def taylor_add_err_bound(delta: float) -> float:
     return taylor_add_err(0, delta)
 
-def taylor_sub(delta: float, xs: Value) -> Value:
-    if np.any(xs > -1):
+def taylor_sub(delta: float, xs: Value, force_neg_one: bool = True) -> Value:
+    if force_neg_one and np.any(xs > -1):
         raise ValueError('taylor_sub: xs > -1')
     ns = np.ceil(xs / delta) * delta
     rs = ns - xs
