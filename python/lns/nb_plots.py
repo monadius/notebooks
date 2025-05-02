@@ -128,8 +128,8 @@ fig, ax = plt.subplots(figsize=(6, 6))
 
 # The main plot
 for i in range(0, 3):
-    exact = taylor_add_err(2 * i, xs)
-    label = fr'$E({2 * i}, r)$'
+    exact = taylor_add_err(-2 * i, xs)
+    label = fr'$E({-2 * i}, r)$'
     ax.plot(xs, exact, color=['blue', 'green', 'red'][i], linewidth=linewidth, label=label)
 
 # Spines and ticks
@@ -183,6 +183,8 @@ plt.savefig('images/taylor_add_error_fixed_r.png', bbox_inches='tight', format='
 
 # %%
 
+# Phi+ and Phi- plots
+
 prec = 2 ** -5
 xs = np.arange(-4, prec, prec)
 phi_plus = phi_add(xs)
@@ -226,6 +228,54 @@ plt.yticks([y for y in range(-4, 2) if y], fontsize=fontsize)
 
 ax.legend(loc='lower left', fontsize=fontsize + 5, frameon=False)
 plt.savefig('images/phi_add_sub.png', bbox_inches='tight', format='png')
+
+
+# %%
+
+# Phi- and Phi-' plots for (-2, 0).
+
+prec = 2 ** -12
+xs = np.arange(-2, -prec, prec)
+phi_minus = phi_sub(xs)
+dphi_minus = dphi_sub(xs)
+
+linewidth = 2.5
+fontsize = 20
+
+plt.rcParams["font.family"] = "serif"
+plt.rcParams["mathtext.fontset"] = "dejavuserif"
+
+fig, ax = plt.subplots(figsize=(10, 7))
+
+# The main plot
+ax.plot(xs, phi_minus, color='red', linewidth=linewidth, label=r'$\Phi^-(x)$')
+ax.plot(xs, dphi_minus, color='green', linewidth=linewidth, label=r"$(\Phi^-)'(x)$")
+
+plt.ylim(-30, 1.5)
+plt.xlim(-1.5, 0.3)
+# plt.text(0.8, -0.2, 'x', horizontalalignment='center', verticalalignment='center', fontsize=fontsize)
+# plt.text(0.04, 1.5, 'y', horizontalalignment='left', verticalalignment='center', fontsize=fontsize)
+# plt.text(0.04, -0.25, '0', horizontalalignment='left', verticalalignment='center', fontsize=fontsize + 3)
+
+# Spines and ticks
+ax.spines[["right", "top"]].set_position(("data", 0))
+ax.spines[["right", "top"]].set_linewidth(2)
+ax.spines[["bottom", "left"]].set_visible(False)
+ax.plot(1, 0, ">k", transform=ax.get_yaxis_transform(), clip_on=False)
+ax.plot(0, 1, "^k", transform=ax.get_xaxis_transform(), clip_on=False)
+
+ax.yaxis.tick_right()
+ax.xaxis.tick_top()
+ax.tick_params(axis='both', width=2)  # Set tick width for both axes
+plt.xticks(
+    ticks=[x * 0.5 for x in range(-3, 0) if x], 
+    labels=[f'${x / 2:.2g}$' for x in range(-3, 0) if x],
+    fontsize=fontsize
+)
+plt.yticks([y for y in range(-30, 2, 4) if y], fontsize=fontsize)
+
+ax.legend(loc='lower left', fontsize=fontsize + 5, frameon=False)
+plt.savefig('images/phi_sub_near_zero.png', bbox_inches='tight', format='png')
 
 
 
