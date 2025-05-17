@@ -32,12 +32,14 @@ Rp_opt = log(B(2 ** Δ) / A(2 ** Δ), 2)
 QRp = Qp_hi.subs(r, Rp_opt) - Qp_lo.subs(r, Rp_opt)
 QIp = 1 - Qp_lo.subs(r, Δ - ΔP)
 
+
 # %%
 print(QRp.subs(Δ, 0.001).evalf())
 print(QIp.subs(Δ, 0.00001).subs(ΔP, 0.00000005).evalf())
 
 # %%
 QIp.subs(ΔP, Δ / 256).series().evalf()
+QIp.subs(ΔP, Δ / 32).series().evalf()
 
 # %%
 QIp.subs(ΔP, Δ * r).series(Δ, 0, 2).evalf()

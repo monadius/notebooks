@@ -407,16 +407,18 @@ plt.legend(loc='lower right', fontsize=fontsize + 5)
 plt.savefig('images/taylor_add_errors.png', bbox_inches='tight')
 
 
+# All errors in one plot
 # %%
 
 rounding_mode = RoundingMode.FAITHFUL
+rounding_mode = RoundingMode.FLOOR
 prec = -23
 da = 2 ** -20
 db = 2 ** -10
 
-prec = -20
-da = 2 ** -18
-db = 2 ** -9
+# prec = -20
+# da = 2 ** -18
+# db = 2 ** -9
 
 deltas = [*range(-15, -5)]
 xy = []
@@ -436,9 +438,7 @@ plt.ylabel(r'$\log_2(\rm{error})$', fontsize=fontsize + 2)
 plt.xticks(deltas, fontsize=fontsize)
 plt.yticks(range(-23, -11), fontsize=fontsize)
 plt.legend(loc='upper left', fontsize=fontsize + 5)
-# plt.savefig('images/taylor_add_sub_cotrans2.png', bbox_inches='tight')
+plt.savefig('images/taylor_add_sub_cotrans_floor.png', bbox_inches='tight')
 # plt.savefig('images/taylor_add_sub_cotrans.pdf', bbox_inches='tight', format='pdf')
 
-
-# %%
 
