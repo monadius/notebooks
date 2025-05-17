@@ -7,7 +7,7 @@ import taylor_errors as te
 import cotrans_errors as ce
 
 
-# Contrasformation errors only
+# Cotransformation errors only
 # %%
 
 # rounding_mode = RoundingMode.FAITHFUL
@@ -42,7 +42,7 @@ plt.title(fr'Error bounds for cotransformation $\epsilon = 2^{{{prec}}}, \Delta_
 
 
 
-# Contrasformation 2 errors only
+# Cotransformation 2 errors only
 # %%
 
 
@@ -76,7 +76,7 @@ plt.title(fr'Error bounds for 2-table cotransformation $\epsilon = 2^{{{prec}}},
 # plt.savefig('images/taylor_add_sub_cotrans.pdf', bbox_inches='tight', format='pdf')
 
 
-# Contrasformation 2 errors only for fixed delta and varying da
+# Cotransformation 2 errors only for fixed delta and varying da
 # %%
 
 
